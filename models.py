@@ -1,0 +1,137 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+# =========================================
+# 1. EncoderICM —— 好奇心模块的 Encoder
+#    把图片变成 latent 向量，供 Forward/Inverse 使用
+# =========================================
+class EncoderICM(nn.Module):
+    def __init__(self, latent_dim=128):
+        super().__init__()
+
+        self.conv = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=8, stride=4),   # 32×31×31
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),  # 64×14×14
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1), # 128×12×12
+            nn.BatchNorm2d(128), 
+            # keep BN in convs, remove BN on latent
+            # Ideally This alone often makes forward loss keep decreasing longer and gives inverse loss room to move.
+            nn.ReLU()
+        )
+
+        self.fc = nn.Linear(128 * 12 * 12, latent_dim)
+        self.bn_latent = nn.BatchNorm1d(latent_dim)   # 🔑 keep φ scale stable
+        #self.ln_latent = nn.LayerNorm(latent_dim)   # add this, try layer norm instead of batch norm in latent
+
+    def forward(self, x):
+        z = self.conv(x)                      # [B, 128, 12, 12]
+        z = z.reshape(z.size(0), -1)          # [B, 128*12*12]
+        z = self.fc(z)                        # [B, latent_dim]
+        z = self.bn_latent(z)                # [B, latent_dim], normalised 
+        #z = self.ln_latent(z)                 # normalize φ(s)
+        return z
+
+
+# =========================================
+# 2. Forward Model —— ICM 的“未来预测器”
+#    输入：latent φ(s_t) + one-hot(action)
+#    输出：预测 φ(s_{t+1})
+# =========================================
+class ForwardModel(nn.Module):
+    def __init__(self, action_dim=4, latent_dim=128):
+        super().__init__()
+
+        self.fc = nn.Sequential(
+            nn.Linear(latent_dim + action_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, latent_dim)
+        )
+
+    def forward(self, phi_t, a_onehot):
+        x = torch.cat([phi_t, a_onehot], dim=1)
+        return self.fc(x)  # 预测 φ(s_{t+1})
+
+
+# =========================================
+# 3. Inverse Model —— ICM 的“动作反推器”
+#    输入：φ(s_t), φ(s_{t+1})
+#    输出：动作 logits（分类）
+# =========================================
+class InverseModel(nn.Module):
+    def __init__(self, action_dim=4, latent_dim=128):
+        super().__init__()
+
+        self.fc = nn.Sequential(
+            nn.Linear(latent_dim * 2, 256),
+            nn.ReLU(),
+            nn.Linear(256, action_dim)
+        )
+
+    def forward(self, phi_t, phi_next):
+        x = torch.cat([phi_t, phi_next], dim=1)
+        return self.fc(x)  # logits
+
+
+# =========================================
+# 4. EncoderPolicy —— 给 Actor–Critic 使用的 Encoder
+#    让策略网络看到“更抽象、更整洁”的 latent
+#    （通常 Policy 的 encoder 和 ICM 的 encoder 不共享）
+# =========================================
+class EncoderPolicy(nn.Module):
+    def __init__(self, latent_dim=128):
+        super().__init__()
+
+        self.conv = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=8, stride=4),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU()
+        )
+
+        self.fc = nn.Linear(64 * 12 * 12, latent_dim)
+        self.bn_latent = nn.BatchNorm1d(latent_dim)
+
+    def forward(self, x):
+        z = self.conv(x)
+        z = z.reshape(z.size(0), -1)
+        z = self.fc(z)
+        z = self.bn_latent(z)
+        return z
+
+
+# =========================================
+# 5. ActorCritic —— 策略网络 + 价值网络
+#    Actor：输出动作 logits
+#    Critic：输出状态价值 V(s)
+# =========================================
+class ActorCritic(nn.Module):
+    def __init__(self, action_dim=4, latent_dim=128):
+        super().__init__()
+
+        self.fc = nn.Sequential(
+            nn.Linear(latent_dim, 256),
+            nn.ReLU()
+        )
+
+        # Actor（选择动作）
+        self.actor = nn.Linear(256, action_dim)
+
+        # Critic（估计未来价值）
+        self.critic = nn.Linear(256, 1)
+
+    def forward(self, latent):
+        x = self.fc(latent)
+        logits = self.actor(x)   # 动作 logits
+        value = self.critic(x)   # V(s)
+        return logits, value

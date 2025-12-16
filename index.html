@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Curiosity Explorer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      overflow: hidden;
+      background-color: #000;
+      color: white;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      background-color: #444;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #module-welcome, #module-main, #model-run-out {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background: radial-gradient(#333, #000);
+      z-index: 10;
+    }
+
+    #module-main {
+      display: none;
+      background: transparent;
+    }
+
+    #load-random-model {
+      position: absolute;
+      top: 100px;
+      left: 10px;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🧠 Welcome Screen -->
+  <div id="module-welcome" style="display: flex; flex-direction: row; align-items: center; justify-content: center; height: 100vh; padding: 2rem; gap: 80px;">
+    <div style="max-width: 600px; text-align: left;">
+      <h1 style="font-size: 2.5rem;">🧠 Welcome to 3D Curiosity Explorer</h1>
+      <p style="font-size: 1.2rem; margin-top: 1rem;">
+        Explore a series of 3D objects. Use your keyboard to rotate and inspect each one from different angles.
+      </p>
+      <p style="font-size: 1.2rem; margin-top: 1rem;">
+        Use ⬆️⬇️⬅️➡️ to control rotation. Each object will be explored automatically by the AI curiosity agent.
+      </p>
+      <div style="text-align:center; margin-top: 20px;">
+        <button id="start-button" style="font-size: 1.2rem; padding: 10px 20px;">🚀 Start Exploring</button>
+      </div>
+    </div>
+
+    <div style="border-left: 2px solid #ccc; padding-left: 40px;">
+      <h2 style="font-size: 1.5rem;">🎮 Controls</h2>
+      <ul style="font-size: 1.1rem; list-style: none; padding-left: 0;">
+        <li>⬆️ <strong>Up Arrow</strong>: Tilt Up</li>
+        <li>⬇️ <strong>Down Arrow</strong>: Tilt Down</li>
+        <li>⬅️ <strong>Left Arrow</strong>: Rotate Left</li>
+        <li>➡️ <strong>Right Arrow</strong>: Rotate Right</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 🎥 Main Experiment -->
+  <div id="module-main">
+    <button id="load-random-model">Load Next Model</button>
+    <div id="countdown-timer" style="
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      font-size: 16px;
+      font-family: monospace;
+      color: #222;
+      background: rgba(255,255,255,0.8);
+      padding: 5px 10px;
+      border-radius: 6px;">
+      100000 steps remaining
+    </div>
+  </div>
+
+  <!-- 🎉 End Message -->
+  <div id="model-run-out" style="
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #000;
+      color: white;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;">
+    <h1 style="margin-bottom: 20px;">🎉 Thank you! You have finished all models!</h1>
+  </div>
+
+  <!-- 🔁 Module Switch Logic -->
+  <script>
+    function switchModule(name) {
+      document.getElementById('module-welcome').style.display = (name === 'welcome') ? 'flex' : 'none';
+      document.getElementById('module-main').style.display = (name === 'main') ? 'block' : 'none';
+      document.getElementById('model-run-out').style.display = (name === 'model-run-out') ? 'flex' : 'none';
+    }
+
+    document.getElementById('start-button').addEventListener('click', () => {
+      switchModule('main');
+      if (window.resetMainModule) window.resetMainModule();
+      setTimeout(() => {
+        if (window.loadNextModel) window.loadNextModel();
+      }, 100); // wait for UI to render before loading
+    });
+  </script>
+
+  <!-- 🚀 Launch Three.js -->
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

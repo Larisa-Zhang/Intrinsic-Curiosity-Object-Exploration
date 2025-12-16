@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pth
+*.csv
+
+# Node/Vite
+node_modules/
+dist/
+
+# Generated data
+hdrs/
+screenshots/
+preview_edges
+public/
+data/
+memory_test_results.csv
+record.csv
+reinforcement_train_curiosity.csv
+train_policy_reinforcement.csv
+
+# Environment
+.venv/
+.env
