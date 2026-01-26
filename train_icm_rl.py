@@ -8,8 +8,6 @@ train_icm_rl.py:
     3. saves updated weights back to saved_models/*.pth
     4. Then server.py loads those same saved_models/encoder_policy.pth + saved_models/actor_critic.pth to choose the next action.
 """
-
-import os
 import time
 import csv
 import torch
@@ -25,6 +23,26 @@ from models import (
     EncoderPolicy, ActorCritic
 )
 
+# ===== Reproducibility / Seed =====
+import os, random
+import numpy as np
+
+
+def set_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+# NOTE: Do not call set_seed at import time. When this module is imported from
+# `server.py` we want a lightweight import that does not perform I/O or set
+# global randomness deterministically. `run_rollout()` (below) will set the
+# seed when training is invoked.
+SEED = None
+
+
 
 # ===================
 # Config
@@ -33,7 +51,13 @@ csv_path = "record.csv"
 image_folder = r"screenshots"
 
 log_csv = "training_log.csv"   # 日志 CSV
-rollout_size = 50             # 一次 roll-out 的步数 T (we only have rollout_size samples in each training, hence set batch_size=rollout_size)
+rollout_size = int(os.getenv("rollout_size", "50"))             
+# 一次 roll-out 的步数 T (we only have rollout_size samples in each training, hence set batch_size=rollout_size)
+# ("rollout_size", "50")), the "50" is a default fallback value.
+# Meaning:
+# If your environment variable rollout_size is set (e.g., "60"), 
+# then os.getenv(...) returns "60" → int(...) becomes 60.
+# So, need to manually update "50" when the rollout size changes in server.py.
 action_dim = 4
 latent_dim = 128 # dimension of encoded state
 gamma = 0.99 # discount factor
@@ -109,14 +133,25 @@ def save_model(model, name):
 # ========================================
 # Rollout Training + per-sample Logging
 # ========================================
-def train_one_rollout():
+def train_one_rollout(total_rows: int | None = None):
+    
+    # ========= Load models =========
+    encoder_icm = load_or_create(EncoderICM, "encoder_icm")
+    forward_model = load_or_create(lambda: ForwardModel(action_dim), "forward")
+    inverse_model = load_or_create(lambda: InverseModel(action_dim), "inverse")
+
+    encoder_policy = load_or_create(EncoderPolicy, "encoder_policy")
+    actor_critic = load_or_create(lambda: ActorCritic(action_dim), "actor_critic")
+
 
     # ========= 初始化 CSV Header =========
     if not os.path.exists(log_csv):
         with open(log_csv, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([
-                "timestamp", "step",
+                "timestamp", 
+                "seed",
+                "step",
 
                 # per-sample losses
                 "forward_loss_each",
@@ -140,7 +175,11 @@ def train_one_rollout():
 
                 "chosen_action",
                 
-                    # inverse metrics
+                # invers accuracy metrics
+                # Inverse accuracy measures how often the inverse model correctly predicts 
+                # the action that caused the transition,given the encoded states ϕ(st) and ϕ(st+1).
+                # It is computed by taking the inverse model’s predicted action (argmax of its logits) 
+                # and comparing it to the true action, then averaging the correct predictions (0/1) over a batch or rollout.
                 "inverse_acc_each",
                 "inverse_acc_rollout",
                 
@@ -164,13 +203,13 @@ def train_one_rollout():
 
     T = rollout_size
 
-    # ========= Load models =========
-    encoder_icm = load_or_create(EncoderICM, "encoder_icm")
-    forward_model = load_or_create(lambda: ForwardModel(action_dim), "forward")
-    inverse_model = load_or_create(lambda: InverseModel(action_dim), "inverse")
+    # # ========= Load models =========
+    # encoder_icm = load_or_create(EncoderICM, "encoder_icm")
+    # forward_model = load_or_create(lambda: ForwardModel(action_dim), "forward")
+    # inverse_model = load_or_create(lambda: InverseModel(action_dim), "inverse")
 
-    encoder_policy = load_or_create(EncoderPolicy, "encoder_policy")
-    actor_critic = load_or_create(lambda: ActorCritic(action_dim), "actor_critic")
+    # encoder_policy = load_or_create(EncoderPolicy, "encoder_policy")
+    # actor_critic = load_or_create(lambda: ActorCritic(action_dim), "actor_critic")
 
     # ========= Optimizer =========
     params = (
@@ -328,7 +367,7 @@ def train_one_rollout():
 
         for i in range(T):
             writer.writerow([
-                ts, i,
+                ts, SEED, i,
 
                 float(fl_cpu[i]),
                 float(il_cpu[i]),
@@ -357,13 +396,27 @@ def train_one_rollout():
             ])
 
     # ==========================================
-    # Save models
+    # Save models (regular save + optional snapshot when total_rows hits multiples of 1000)
     # ==========================================
-    save_model(encoder_icm, "encoder_icm")
-    save_model(forward_model, "forward")
-    save_model(inverse_model, "inverse")
-    save_model(encoder_policy, "encoder_policy")
-    save_model(actor_critic, "actor_critic")
+    def _save_and_maybe_snapshot(model, name, total_rows_val):
+        # regular save
+        save_model(model, name)
+
+        # save snapshot with metadata when total_rows is a multiple of 1000
+        try:
+            if total_rows_val is not None and int(total_rows_val) % 1000 == 0:
+                ts = time.strftime("%Y%m%d_%H%M%S")
+                filename = f"{name}_{int(total_rows_val)}_{ts}.pth"
+                torch.save(model.state_dict(), os.path.join(save_path, filename))
+                print(f"💾 Snapshot saved: {filename}")
+        except Exception as e:
+            print(f"⚠️ Failed to write snapshot for {name}:", e)
+
+    _save_and_maybe_snapshot(encoder_icm, "encoder_icm", total_rows)
+    _save_and_maybe_snapshot(forward_model, "forward", total_rows)
+    _save_and_maybe_snapshot(inverse_model, "inverse", total_rows)
+    _save_and_maybe_snapshot(encoder_policy, "encoder_policy", total_rows)
+    _save_and_maybe_snapshot(actor_critic, "actor_critic", total_rows)
 
     print("🎉 Rollout trained & logged.")
 
@@ -371,5 +424,52 @@ def train_one_rollout():
 # ===========================
 # Main
 # ===========================
+def run_rollout(seed: int | None = None, rollout_size_override: int | None = None, total_rows: int | None = None) -> dict:
+    """
+    Run one rollout training. This function is safe to import and call from
+    `server.py` (it does not run at import time).
+
+    Args:
+        seed: optional seed to set for reproducibility. If None, falls back to
+              the SEED environment variable or 42.
+        rollout_size_override: if provided, overrides module-level rollout_size
+                                for this run.
+
+    Returns:
+        dict: {"status": "ok"} on success or {"status": "error", "error": str}
+    """
+    global SEED, rollout_size
+    # determine seed
+    if seed is None:
+        SEED = int(os.environ.get("SEED", "42"))
+    else:
+        SEED = int(seed)
+
+    # set deterministic behavior now (not at import)
+    set_seed(SEED)
+    print(f"🌱 SEED = {SEED}")
+
+    # optional rollout_size override
+    if rollout_size_override is not None:
+        try:
+            rollout_size = int(rollout_size_override)
+            print(f"🔧 rollout_size overridden to {rollout_size}")
+        except Exception:
+            print("⚠️ Invalid rollout_size_override, ignoring.")
+
+    try:
+        train_one_rollout(total_rows=total_rows)
+        return {"status": "ok"}
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        print("❌ Exception during run_rollout:", e)
+        print(tb)
+        return {"status": "error", "error": str(e), "traceback": tb}
+
+
 if __name__ == "__main__":
-    train_one_rollout()
+    # keep CLI behaviour for backwards compatibility
+    res = run_rollout()
+    if res.get("status") != "ok":
+        raise SystemExit(1)
