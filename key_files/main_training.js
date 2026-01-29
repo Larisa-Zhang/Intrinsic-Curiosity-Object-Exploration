@@ -84,7 +84,7 @@ const modelList = allModels;
 console.log(`✅ Discovered ${modelList.length} models (shuffled):`, modelList);
 
 // ===== AUTO-COLLECTION STATE =====
-const STEPS_PER_MODEL = 1000;
+const STEPS_PER_MODEL = 50;
 const loader = new GLTFLoader();
 
 let model = null;
@@ -268,15 +268,9 @@ function loadModel(name) {
       model.userData.isModel = true;
       model.scale.set(0.5, 0.5, 0.5);
       model.position.set(0, 0, -2.5);
-
-      // Deterministic initial rotation
-      const hashX = hashString('test' + name);
-      const rotationsX = Math.floor(hashX % (360 / 5) * 5);
-      const angleRadX = THREE.MathUtils.degToRad(rotationsX);
-
-      const hashY = hashString('test/' + name);
-      const rotationsY = Math.floor(hashY % (360 / 5) * 5);
-      const angleRadY = THREE.MathUtils.degToRad(rotationsY);
+      // Fully randomized initial position for training
+      const angleRadX = THREE.MathUtils.degToRad(Math.floor(rng() * 360));
+      const angleRadY = THREE.MathUtils.degToRad(Math.floor(rng() * 360));
 
       model.rotation.set(angleRadX, angleRadY, 0);
 
@@ -492,7 +486,7 @@ async function simulateAction(actionId) {
 
   // Rotate by action
   const { cameraRight, cameraUp } = getCameraRelativeAxes();
-  const step = THREE.MathUtils.degToRad(15);
+  const step = THREE.MathUtils.degToRad(5);
   switch (actionId) {
     case 0: model.rotateOnWorldAxis(cameraRight, -step); break;
     case 1: model.rotateOnWorldAxis(cameraRight, step); break;

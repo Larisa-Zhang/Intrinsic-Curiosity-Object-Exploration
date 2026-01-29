@@ -250,10 +250,11 @@ def train_one_rollout(total_rows: int | None = None):
     loss_forward = forward_loss_each.mean()
 
     # per-sample inverse loss
-    inverse_loss_each = F.cross_entropy(inv_logits, action_batch, reduction='none')  # [T]
+    inverse_loss_each = F.cross_(inv_logits, action_batch, reduction='none')  # [T]
     loss_inverse = inverse_loss_each.mean()
-
-    icm_loss_each = forward_loss_each + 0.1 * inverse_loss_each  # [T]
+    
+    #icm_loss_each = forward_loss_each + 0.1 * inverse_loss_each
+    icm_loss_each = 0.5 * forward_loss_each + 0.5 * inverse_loss_each  # [T]
     loss_icm = icm_loss_each.mean()
 
     # ==========================================
