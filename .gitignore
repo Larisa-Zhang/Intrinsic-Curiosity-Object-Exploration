@@ -11,12 +11,15 @@ dist/
 # Generated data
 hdrs/
 screenshots/
-data/
-saved_models/
 preview_edges
 public/
+data/
+saved_models/
 temp_files/
-*.csv
+memory_test_results.csv
+record.csv
+reinforcement_train_curiosity.csv
+train_policy_reinforcement.csv
 
 # Environment
 .venv/
