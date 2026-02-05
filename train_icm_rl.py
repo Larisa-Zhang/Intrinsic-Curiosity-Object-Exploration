@@ -48,7 +48,9 @@ SEED = None
 # Config
 # ===================
 csv_path = "record.csv"
-image_folder = r"screenshots"
+SCREENSHOT_DIR = r"D:\Users\Public\Documents\screenshots"
+image_folder = SCREENSHOT_DIR
+
 
 log_csv = "training_log.csv"   # 日志 CSV
 rollout_size = int(os.getenv("rollout_size", "50"))             
@@ -62,6 +64,8 @@ action_dim = 4
 latent_dim = 128 # dimension of encoded state
 gamma = 0.99 # discount factor
 lr = 1e-4 # learning rate
+beta = 0.5 # balance forward vs inverse in ICM loss (original repo called FORWARD_LOSS_WT)
+prediction_lr_scale = 30 # from the ICM paper, to scale up the gradients from the forward/inverse loss to be comparable to policy gradients.
 
 save_path = "saved_models"
 os.makedirs(save_path, exist_ok=True)
@@ -250,11 +254,11 @@ def train_one_rollout(total_rows: int | None = None):
     loss_forward = forward_loss_each.mean()
 
     # per-sample inverse loss
-    inverse_loss_each = F.cross_(inv_logits, action_batch, reduction='none')  # [T]
+    inverse_loss_each = F.cross_entropy(inv_logits, action_batch, reduction='none')  # [T]
     loss_inverse = inverse_loss_each.mean()
     
     #icm_loss_each = forward_loss_each + 0.1 * inverse_loss_each
-    icm_loss_each = 0.5 * forward_loss_each + 0.5 * inverse_loss_each  # [T]
+    icm_loss_each = beta * forward_loss_each + (1 - beta) * inverse_loss_each  # [T]
     loss_icm = icm_loss_each.mean()
 
     # ==========================================
@@ -297,7 +301,7 @@ def train_one_rollout(total_rows: int | None = None):
     total_loss_each = (
         policy_loss_each +
         0.5 * value_loss_each +
-        icm_loss_each -
+        prediction_lr_scale * icm_loss_each -
         0.01 * entropy_each
     )  # [T]
 
