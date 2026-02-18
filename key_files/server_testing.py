@@ -1,3 +1,4 @@
+import subprocess
 import threading
 import pandas as pd
 from flask import Flask, request, jsonify, make_response
@@ -20,8 +21,6 @@ from models import (
     EncoderPolicy, ActorCritic
 )
 from train_icm_rl import load_or_create, save_model, action_dim
-
-
 
 app = Flask(__name__) #Creates a Flask server
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')#Picks device: cuda if available, else CPU.
@@ -61,33 +60,33 @@ print(f"🌱 SEED = {SEED}")
 #   $env:SEED=123; python server.py
 # That makes the server’s randomness consistent across runs.
 
-# def save_abstract_image(img_bytes, save_path):
-#     """保存抽象过的图像（灰度 + 边缘检测 + 归一化）(not used currently)"""
+def save_abstract_image(img_bytes, save_path):
+    """保存抽象过的图像（灰度 + 边缘检测 + 归一化）(not used currently)"""
 
-#     # 从 bytes 加载图片
-#     img = Image.open(BytesIO(img_bytes)).convert('RGB')
-#     img = np.array(img)  # 转 numpy
+    # 从 bytes 加载图片
+    img = Image.open(BytesIO(img_bytes)).convert('RGB')
+    img = np.array(img)  # 转 numpy
 
-#     # ---------- 1) 裁剪中心 ----------
-#     CROP_SIZE =350
-#     h, w, _ = img.shape
-#     left = (w - CROP_SIZE) // 2
-#     top = (h - CROP_SIZE) // 2
-#     right = left + CROP_SIZE
-#     bottom = top + CROP_SIZE
-#     img = img[top:bottom, left:right]
+    # ---------- 1) 裁剪中心 ----------
+    CROP_SIZE =350
+    h, w, _ = img.shape
+    left = (w - CROP_SIZE) // 2
+    top = (h - CROP_SIZE) // 2
+    right = left + CROP_SIZE
+    bottom = top + CROP_SIZE
+    img = img[top:bottom, left:right]
 
-#     # ---------- 2) 转灰度 ----------
-#     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    # ---------- 2) 转灰度 ----------
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-#     # ---------- 3) 边缘检测 (Canny) ----------
-#     edges = cv2.Canny(gray, 50, 150)
+    # ---------- 3) 边缘检测 (Canny) ----------
+    edges = cv2.Canny(gray, 50, 150)
 
-#     # ---------- 4) 归一化到 0-255 ----------
-#     edges = edges.astype(np.uint8)
+    # ---------- 4) 归一化到 0-255 ----------
+    edges = edges.astype(np.uint8)
 
-#     # ---------- 5) 保存 ----------
-#     cv2.imwrite(save_path, edges)
+    # ---------- 5) 保存 ----------
+    cv2.imwrite(save_path, edges)
 
 
 # 图像预处理函数（和训练保持一致）
@@ -98,19 +97,70 @@ preprocess = transforms.Compose([
 
 # ✅ 启用 CORS 支持
 CORS(app)
-#saving screenshots data at an direactory outside of the project folder
-SCREENSHOT_DIR = r"D:\Users\Public\Documents\screenshots"
-os.makedirs(SCREENSHOT_DIR, exist_ok=True)
-CSV_FILE = 'record.csv'
-ACTION_DIM = 4  # since ActorCritic(action dimension = 4)
 
+os.makedirs(r'screenshots', exist_ok=True)
+CSV_FILE = 'record.csv'
+TESTING_LOG_FILE = "testing_log.csv"
+ACTION_DIM = 4  # since ActorCritic(action dimension = 4)
 LOCK_FILE = "training.lock"
-ENABLE_TRAINING = True   # set False when you want “no .pth updates”, aka disable training and “freeze weights”
+ENABLE_TRAINING = False   # set False when you want “no .pth updates”, aka disable training and “freeze weights”
 rollout_size = 50
 TRAIN_ROWS_EVERY = rollout_size  # alias so the meaning is clear
 
+# =========================
+# Testing log (ONLY when ENABLE_TRAINING == False)
+# =========================
+def init_testing_csv_if_needed():
+    """Create testing_log.csv if missing. Never overwrite."""
+    if os.path.exists(TESTING_LOG_FILE):
+        return
+    with open(TESTING_LOG_FILE, 'w', newline='') as f:
+        writer = csv.writer(f)
+        header = [
+            "timestamp",
+            "sessionId",
+            "seed",
+            "frontend_seed",
+            "model",
+            "actionId",
+            "s_t_img",
+            "s_t1_img",
+            "forward_loss_test",
+            "inverse_loss_test",
+            "entropy_test",
+        ]
+        header.extend([f'prob_{i}' for i in range(ACTION_DIM)])
+        writer.writerow(header)
 
-def append_csv_row(sessionId, seed, frontend_seed, modelName, actionId, greedy_action,
+def append_testing_row(sessionId, seed, frontend_seed, modelName, actionId,
+                       s_t_img, s_t1_img,
+                       forward_loss_test, inverse_loss_test, entropy_test,
+                       probs=None):
+    """Append one row to testing_log.csv (assumes file exists or init has been called)."""
+    row = [
+        time.time(),
+        sessionId,
+        seed,
+        frontend_seed,
+        modelName,
+        actionId,
+        s_t_img,
+        s_t1_img,
+        forward_loss_test,
+        inverse_loss_test,
+        entropy_test,
+    ]
+    if probs is not None:
+        row.extend([float(p) for p in probs])
+    else:
+        row.extend([''] * ACTION_DIM)
+
+    with open(TESTING_LOG_FILE, 'a', newline='') as f:
+        csv.writer(f).writerow(row)
+
+
+
+def append_csv_row(sessionId, seed, frontend_seed, modelName, actionId,
                    s_t_img, s_t1_img,
                    after, delta, initial,
                    reward, probs=None):
@@ -124,7 +174,6 @@ def append_csv_row(sessionId, seed, frontend_seed, modelName, actionId, greedy_a
         frontend_seed,
         modelName,
         actionId,
-        greedy_action,
         s_t_img,
         s_t1_img,
         after.get('yaw'), after.get('pitch'),
@@ -143,19 +192,6 @@ def append_csv_row(sessionId, seed, frontend_seed, modelName, actionId, greedy_a
         writer = csv.writer(f)
         writer.writerow(row) 
         
-# When  receive imgData2, decode it to PIL and run policy on that PIL directly
-# Change from Frontend → sends base64 → backend saves image → backend re-opens image file → run policy 
-#To
-#Frontend → sends base64 image → Backend → decodes base64 → PIL Image (in RAM) → runs policy on that image → saves image to disk later
-        
-# def pil_from_data_url(data_url):
-#     if not data_url or "," not in data_url:
-#         return None
-#     b64 = data_url.split(",", 1)[1]
-#     if not b64:
-#         return None
-#     return Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
-
 # 可选：初始化 CSV
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, 'w', newline='') as f:
@@ -166,7 +202,6 @@ if not os.path.exists(CSV_FILE):
             'frontend_seed',
             'model',
             'actionId',
-            'greedy_action',
             's_t_img',
             's_t1_img',
             'after_yaw', 'after_pitch',
@@ -260,6 +295,17 @@ def record():
     s_t_img = data['s_t_img']
     s_t1_img = data['s_t1_img']
     actionId = data['actionId']
+    
+    # ===== Testing-only logging (active ONLY when ENABLE_TRAINING == False) =====
+    testing_active = (ENABLE_TRAINING == False)
+    forward_loss_test = ''
+    inverse_loss_test = ''
+    entropy_test = ''
+
+    # Create testing_log.csv only when testing is active
+    if testing_active:
+        init_testing_csv_if_needed()
+
     print(f"Saving image: {initial.get('yaw')}, {initial.get('pitch')} -> {after.get('yaw')}, {after.get('pitch')}，delta: {delta.get('yaw')}, {delta.get('pitch')}")
     
     
@@ -278,9 +324,7 @@ def record():
             bottom = top + CROP_SIZE
             image = image.crop((left, top, right, bottom))
 
-            #image.save(rf'screenshots\{s_t_img}', format='PNG')
-            image.save(os.path.join(SCREENSHOT_DIR, s_t_img), format='PNG')
-            
+            image.save(rf'screenshots\{s_t_img}', format='PNG')
 
         if data.get('imgData2', '').startswith('data:image'):
             imgData2 = data['imgData2'].split(',')[1]
@@ -296,16 +340,48 @@ def record():
             bottom = top + CROP_SIZE
             image = image.crop((left, top, right, bottom))
 
-            #image.save(rf'screenshots\{s_t1_img}', format='PNG')
-            image.save(os.path.join(SCREENSHOT_DIR, s_t1_img), format='PNG')
+            image.save(rf'screenshots\{s_t1_img}', format='PNG')
             
             for attempt in range(10):
-                if (os.path.exists(os.path.join(SCREENSHOT_DIR, s_t_img)) and
-                    os.path.exists(os.path.join(SCREENSHOT_DIR, s_t1_img))):
+                if (os.path.exists(rf'screenshots\{s_t_img}') and
+                    os.path.exists(rf'screenshots\{s_t1_img}')):
                     break
                 time.sleep(0.1)
             else:
                 print(f"⚠️ Timeout waiting for {s_t_img} or {s_t1_img} to appear.")
+                
+            # ===== Compute ICM forward/inverse losses during TESTING ONLY =====
+            if testing_active:
+                try:
+                    img_before = Image.open(rf'screenshots\{s_t_img}').convert('RGB')
+                    img_after  = Image.open(rf'screenshots\{s_t1_img}').convert('RGB')
+
+                    before_t = preprocess(img_before).unsqueeze(0).to(device)  # [1,C,H,W]
+                    after_t  = preprocess(img_after).unsqueeze(0).to(device)
+
+                    a = torch.tensor([int(actionId)], dtype=torch.long, device=device)  # [1]
+                    a_onehot = F.one_hot(a, num_classes=action_dim).float()             # [1,A]
+
+                    encoder_icm.eval()
+                    forward_model.eval()
+                    inverse_model.eval()
+
+                    with torch.no_grad():
+                        phi_t = encoder_icm(before_t)       # [1,D]
+                        phi_next = encoder_icm(after_t)     # [1,D]
+
+                        phi_pred = forward_model(phi_t, a_onehot)  # [1,D]
+                        # same definition style as training: mean over D -> scalar
+                        forward_loss_test = float(((phi_pred - phi_next) ** 2).mean().item())
+
+                        inv_logits = inverse_model(phi_t, phi_next)  # [1,A]
+                        inverse_loss_test = float(F.cross_entropy(inv_logits, a).item())
+
+                except Exception as e:
+                    print("⚠️ Failed to compute testing forward/inverse loss:", e)
+                    forward_loss_test = ''
+                    inverse_loss_test = ''
+
                 
 
     """
@@ -326,16 +402,9 @@ def record():
 
         next_action = None
 
-        # # Load s_t1 image (It loads the AFTER image (s_t1_img) and uses it as the current state for choosing the next action, it stores probs_for_row = probs)
-        img2 = Image.open(os.path.join(SCREENSHOT_DIR, s_t1_img)).convert('RGB')
+        # Load s_t1 image (It loads the AFTER image (s_t1_img) and uses it as the current state for choosing the next action, it stores probs_for_row = probs)
+        img2 = Image.open(rf'screenshots\{s_t1_img}').convert('RGB')
         img2 = preprocess(img2).unsqueeze(0).to(device)
-        
-        # img2_pil = pil_from_data_url(data.get("imgData2"))
-        # if img2_pil is None:
-        #     return jsonify({"ok": True, "next_action": None, "reason": "missing imgData2"})
-        # img2 = preprocess(img2_pil).unsqueeze(0).to(device)
-
-
 
         # Encode state with policy encoder
         with torch.no_grad():
@@ -343,6 +412,16 @@ def record():
             logits, value = actor_model(phi_t1)
             probs = F.softmax(logits, dim=1).cpu().numpy()[0]
             probs_for_row = probs
+            
+            # ===== Policy entropy during TESTING ONLY =====
+            if testing_active:
+                try:
+                    log_probs = F.log_softmax(logits, dim=1)    # [1,A]
+                    probs_t = F.softmax(logits, dim=1)          # [1,A]
+                    entropy_test = float((-(probs_t * log_probs).sum(dim=1)).item())
+                except Exception as e:
+                    print("⚠️ Failed to compute testing entropy:", e)
+                    entropy_test = ''
 
 
         # Epsilon-greedy multinomial sampling
@@ -354,17 +433,16 @@ def record():
         else:
             probs_tensor = torch.tensor(probs, dtype=torch.float32)
             
-            # # independent generator for action sampling
-            # gen = torch.Generator(device='cpu')
-            # gen.manual_seed(int(time.time() * 1000) % 2**31)  # or any per-step seed
+            # independent generator for action sampling
+            gen = torch.Generator(device='cpu')
+            gen.manual_seed(int(time.time() * 1000) % 2**31)  # or any per-step seed
             
-            greedy_action = int(np.argmax(probs))  # or torch.argmax(torch.tensor(probs)).item()
-            print(f"Greedy action (argmax): {greedy_action}")
-            next_action = int(torch.multinomial(probs_tensor, 1).item())
-            print(f"Sampled action (multinomial): {next_action}")
+            next_action = int(torch.argmax(torch.tensor(probs)))
+            print(f"Actual next action (the greedy action): {next_action}")
+            next_action = int(torch.multinomial(probs_tensor, 1, generator=gen).item())
             #按照它现在的概率分布去随机取
             #e.g. probs = [0.1, 0.2, 0.6, 0.1]，那么动作2被选中的概率就是60%
-            #next_action = int(torch.argmax(torch.tensor(probs))) # this line makes the data collection greedy
+            next_action = int(torch.argmax(torch.tensor(probs))) # this line makes the data collection greedy
             #固定取概率最大的,always pick the action with the highest probability (greedy)
             #e.g. probs = [0.1, 0.2, 0.6, 0.1]，那么动作2一定会被选中
             #print(f"🎮 Policy (multinomial) → {next_action}")
@@ -386,7 +464,6 @@ def record():
         frontend_seed=frontend_seed,
         modelName=modelName,
         actionId=actionId,
-        greedy_action=greedy_action,
         s_t_img=s_t_img,
         s_t1_img=s_t1_img,
         after=after,
@@ -397,21 +474,39 @@ def record():
     )
     print(f"Appended row to {CSV_FILE} for session {sessionId}, action {actionId}")
     
+    # ===== Append to testing_log.csv ONLY when testing is active =====
+    if testing_active:
+        append_testing_row(
+            sessionId=sessionId,
+            seed=SEED,
+            frontend_seed=frontend_seed,
+            modelName=modelName,
+            actionId=actionId,
+            s_t_img=s_t_img,
+            s_t1_img=s_t1_img,
+            forward_loss_test=forward_loss_test,
+            inverse_loss_test=inverse_loss_test,
+            entropy_test=entropy_test,
+            probs=probs_for_row
+        )
+        print(f"🧪 Appended row to {TESTING_LOG_FILE} for session {sessionId}, action {actionId}")
+    
     # === 自动触发训练 ===
-    try:
-        df = pd.read_csv(CSV_FILE)
-        total_rows = len(df)#total rows of data in record.csv
-        if total_rows % TRAIN_ROWS_EVERY == 0 or total_rows == 1:
-            print(f"🚀 {total_rows} rows reached, attempting training...")
-            env = os.environ.copy()
-            env["SEED"] = str(SEED)
-            env["rollout_size"] = str(rollout_size)
+    if ENABLE_TRAINING:
+        try:
+            df = pd.read_csv(CSV_FILE)
+            total_rows = len(df)#total rows of data in record.csv
+            if total_rows % TRAIN_ROWS_EVERY == 0 or total_rows == 1:
+                print(f"🚀 {total_rows} rows reached, attempting training...")
+                env = os.environ.copy()
+                env["SEED"] = str(SEED)
+                env["rollout_size"] = str(rollout_size)
 
-            started = start_training_if_allowed(env, total_rows=total_rows)
-            if started:
-                threading.Timer(5.0, lambda: print("✅ Training process started.")).start()
-    except Exception as e:
-        print("⚠️ Failed to trigger training:", e)
+                started = start_training_if_allowed(env, total_rows=total_rows)
+                if started:
+                    threading.Timer(5.0, lambda: print("✅ Training process started.")).start()
+        except Exception as e:
+            print("⚠️ Failed to trigger training:", e)
 
     
     return jsonify({'status': 'ok', 'next_action': next_action})

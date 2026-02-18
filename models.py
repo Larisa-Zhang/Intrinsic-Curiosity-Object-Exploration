@@ -37,11 +37,40 @@ class EncoderICM(nn.Module):
         #z = self.ln_latent(z)                 # normalize φ(s)
         return z
 
+# class EncoderICM(nn.Module):
+#     def __init__(self, latent_dim=128):
+#         super().__init__()
+
+#         self.conv = nn.Sequential(
+#             nn.Conv2d(3, 64, kernel_size=8, stride=4),     # was 32
+#             nn.BatchNorm2d(64),
+#             nn.ReLU(),
+
+#             nn.Conv2d(64, 128, kernel_size=4, stride=2),   # was 32->64
+#             nn.BatchNorm2d(128),
+#             nn.ReLU(),
+
+#             nn.Conv2d(128, 256, kernel_size=3, stride=1),  # was 64->128
+#             nn.BatchNorm2d(256),
+#             nn.ReLU()
+#         )
+
+#         # was 128 * 12 * 12
+#         self.fc = nn.Linear(256 * 12 * 12, latent_dim)
+#         self.bn_latent = nn.BatchNorm1d(latent_dim)
+
+#     def forward(self, x):
+#         z = self.conv(x)                 # [B, 256, 12, 12]
+#         z = z.reshape(z.size(0), -1)     # [B, 256*12*12]
+#         z = self.fc(z)                   # [B, latent_dim]
+#         z = self.bn_latent(z)
+#         return z
+
 
 # =========================================
 # 2. Forward Model —— ICM 的“未来预测器”
-#    输入：latent φ(s_t) + one-hot(action)
-#    输出：预测 φ(s_{t+1})
+#    输入（input）：latent φ(s_t) + one-hot(action)
+#    输出 （output）：预测 φ(s_{t+1})
 # =========================================
 class ForwardModel(nn.Module):
     def __init__(self, action_dim=4, latent_dim=128):
@@ -108,6 +137,35 @@ class EncoderPolicy(nn.Module):
         z = self.fc(z)
         z = self.bn_latent(z)
         return z
+
+# class EncoderPolicy(nn.Module):
+#     def __init__(self, latent_dim=128):
+#         super().__init__()
+
+#         self.conv = nn.Sequential(
+#             nn.Conv2d(3, 64, kernel_size=8, stride=4),      # was 32
+#             nn.BatchNorm2d(64),
+#             nn.ReLU(),
+
+#             nn.Conv2d(64, 128, kernel_size=4, stride=2),    # was 32->64
+#             nn.BatchNorm2d(128),
+#             nn.ReLU(),
+
+#             nn.Conv2d(128, 128, kernel_size=3, stride=1),   # was 64->64
+#             nn.BatchNorm2d(128),
+#             nn.ReLU()
+#         )
+
+#         # was 64 * 12 * 12
+#         self.fc = nn.Linear(128 * 12 * 12, latent_dim)
+#         self.bn_latent = nn.BatchNorm1d(latent_dim)
+
+#     def forward(self, x):
+#         z = self.conv(x)                 # [B, 128, 12, 12]
+#         z = z.reshape(z.size(0), -1)
+#         z = self.fc(z)
+#         z = self.bn_latent(z)
+#         return z
 
 
 # =========================================

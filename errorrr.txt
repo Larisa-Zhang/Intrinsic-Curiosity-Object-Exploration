@@ -1,0 +1,453 @@
+(ai-train) PS D:\Users\Public\Documents\testailatest> $env:SEED=1; python server.py  
+🌱 SEED = 1
+ * Serving Flask app 'server'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:46:29] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: 253.89788624801395, 334.3410937267447 -> None, None，delta: None, None
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action -1
+🚀 0 rows reached, attempting training...
+✅ Training spawned, pid=24444
+127.0.0.1 - - [17/Dec/2025 00:46:29] "POST /record HTTP/1.1" 200 -
+🌱 SEED = 1
+Traceback (most recent call last):
+  File "C:\Users\lzha565\AppData\Local\anaconda3\Lib\site-packages\pandas\core\indexes\base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'actionId'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Users\Public\Documents\testailatest\train_icm_rl.py", line 403, in <module>
+    train_one_rollout()
+  File "D:\Users\Public\Documents\testailatest\train_icm_rl.py", line 180, in train_one_rollout
+    dataset = CuriosityDataset(csv_path, image_folder)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\Public\Documents\testailatest\train_icm_rl.py", line 77, in __init__
+    (self.df['actionId'] != -1)
+     ~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\lzha565\AppData\Local\anaconda3\Lib\site-packages\pandas\core\frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lzha565\AppData\Local\anaconda3\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'actionId'
+🔓 Training lock removed.
+Received request with method: POST
+Saving image: None, None -> 258.89788624801395, 334.3410937267447，delta: 5, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 00:46:32] "POST /record HTTP/1.1" 200 -
+✅ Training process started.
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:47:04] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 273.897886248014, 334.3410937267447，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 00:47:04] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:47:39] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 280.7820391506458, 336.27176123895083，delta: 6.88415290263174, 1.9306675122061279
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:47:39] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:48:14] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 273.897886248014, 334.3410937267447，delta: -6.88415290263174, -1.9306675122061279
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:48:14] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:48:44] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 280.7820391506458, 336.27176123895083，delta: 6.88415290263174, 1.9306675122061279
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:48:44] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:49:19] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 286.6864556910629, 339.8571140519358，delta: 5.90441654041706, 3.585352812984979
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:49:19] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:49:54] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 301.6864556910629, 339.8571140519358，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 00:49:54] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:50:29] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 295.8589207091971, 332.59588724750864，delta: -5.827534981865824, -7.261226804427224
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:50:29] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:51:04] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 280.8589207091971, 332.59588724750864，delta: -15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 00:51:04] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:51:39] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 295.85892070919715, 332.59588724750864，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 00:51:39] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:52:14] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 280.8589207091971, 332.59588724750864，delta: -15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 00:52:14] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:52:49] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 272.78585971994005, 330.7994502882915，delta: -8.073060989257101, -1.7964369592170897
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:52:49] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:53:24] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 264.41305665861023, 331.1691684108763，delta: -8.372803061329819, 0.36971812258479986
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:53:24] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:53:54] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 256.63240386876487, 333.6585626241376，delta: -7.780652789845362, 2.489394213261221
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:53:54] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:54:29] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 264.41305665861023, 331.1691684108763，delta: 7.780652789845362, -2.489394213261221
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:54:29] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:54:59] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 256.63240386876487, 333.6585626241376，delta: -7.780652789845362, 2.489394213261221
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:54:59] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:55:34] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 264.41305665861023, 331.1691684108763，delta: 7.780652789845362, -2.489394213261221
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:55:34] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:56:04] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 272.7858597199401, 330.7994502882915，delta: 8.372803061329932, -0.36971812258479986
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:56:04] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:56:39] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 257.78585971994005, 330.7994502882915，delta: -15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 00:56:39] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:57:09] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 266.5042860478585, 328.7319239848076，delta: 8.71842632791845, -2.0675263034838736
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:57:09] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:57:44] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 281.50428604785856, 328.7319239848076，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 00:57:44] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:58:19] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 272.07353559246894, 326.94263853437576，delta: -9.43075045538967, -1.789285450431862
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:58:19] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:58:54] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 262.3911384146111, 327.67369286037155，delta: -9.682397177857865, 0.7310543259957285
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 00:58:54] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:59:29] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 272.07353559246894, 326.94263853437576，delta: 9.682397177857865, -0.7310543259957285
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 00:59:29] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 00:59:59] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 287.07353559246883, 326.9426385343757，delta: 14.999999999999886, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 00:59:59] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:00:34] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 272.07353559246894, 326.94263853437576，delta: -14.999999999999886, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 01:00:34] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:01:04] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 281.5042860478585, 328.7319239848076，delta: 9.430750455389557, 1.789285450431862
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:01:04] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:01:39] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 272.07353559246894, 326.94263853437576，delta: -9.430750455389557, -1.789285450431862
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 01:01:39] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:02:14] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 257.0735355924688, 326.94263853437565，delta: -15.000000000000227, -1.1368683772161603e-13
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 01:02:14] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:02:44] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 248.4695938223835, 331.4212632290717，delta: -8.603941770085271, 4.478624694696009
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 01:02:44] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:03:19] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 241.95825370390352, 337.74968278028246，delta: -6.511340118480007, 6.3284195512108
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 01:03:19] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:03:54] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 256.95825370390355, 337.74968278028246，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 01:03:54] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:04:29] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 263.4368606045188, 335.17754505698554，delta: 6.478606900615205, -2.572137723296919
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:04:29] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:04:59] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 270.53697655510405, 334.3830394072845，delta: 7.100115950585177, -0.7945056497010228
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:04:59] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:05:34] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 277.58476743745535, 335.45338499759595，delta: 7.047790882351364, 1.07034559031149
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:05:34] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:06:09] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 270.53697655510405, 334.38303940728446，delta: -7.047790882351364, -1.07034559031149
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 01:06:09] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:06:44] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 285.536976555104, 334.38303940728446，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 01:06:44] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:07:19] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 291.6705358674829, 339.1999448481775，delta: 6.133559312378907, 4.816905440893038
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:07:19] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:07:54] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 306.67053586748284, 339.1999448481775，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 01:07:54] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:08:29] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 300.8215756356142, 330.82335211535604，delta: -5.848960231868659, -8.37659273282145
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 01:08:29] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:09:04] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 292.19661557506004, 324.0784322366926，delta: -8.624960060554145, -6.744919878663495
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 0
+127.0.0.1 - - [17/Dec/2025 01:09:04] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:09:39] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 300.8215756356142, 330.8233521153561，delta: 8.624960060554145, 6.744919878663495
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:09:39] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:10:14] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 306.67053586748284, 339.1999448481775，delta: 5.848960231868659, 8.376592732821337
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:10:14] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:10:49] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 291.67053586748295, 339.1999448481775，delta: -14.999999999999886, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 01:10:49] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:11:24] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 306.67053586748284, 339.1999448481775，delta: 14.999999999999886, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 01:11:24] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:11:59] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 321.6705358674828, 339.19994484817744，delta: 15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 01:11:59] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:12:34] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 324.0776150136737, 351.18712603125164，delta: 2.407079146190881, 11.987181183074199
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:12:34] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:13:09] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 309.0776150136738, 351.1871260312517，delta: -15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 01:13:09] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:13:44] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 309.8973288451212, 0.758549297113575，delta: 0.8197138314474159, 9.571423265861881
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:13:44] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:14:19] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 294.8973288451213, 0.7585492971136318，delta: -14.999999999999886, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765885589245-594504-seed1, action 2
+🚀 50 rows reached, attempting training...
+✅ Training spawned, pid=25772
+127.0.0.1 - - [17/Dec/2025 01:14:19] "POST /record HTTP/1.1" 200 -
+127.0.0.1 - - [17/Dec/2025 01:14:19] "OPTIONS /save-progress HTTP/1.1" 200 -
+✅ Progress saved: 1 models processed
+127.0.0.1 - - [17/Dec/2025 01:14:19] "POST /save-progress HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: 0, 300 -> None, None，delta: None, None
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765887260231-220017-seed1, action -1
+127.0.0.1 - - [17/Dec/2025 01:14:20] "POST /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 5, 300，delta: 5, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765887260231-220017-seed1, action 3
+127.0.0.1 - - [17/Dec/2025 01:14:20] "POST /record HTTP/1.1" 200 -
+✅ Training process started.
+🌱 SEED = 1
+Traceback (most recent call last):
+  File "C:\Users\lzha565\AppData\Local\anaconda3\Lib\site-packages\pandas\core\indexes\base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'actionId'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Users\Public\Documents\testailatest\train_icm_rl.py", line 403, in <module>
+    train_one_rollout()
+  File "D:\Users\Public\Documents\testailatest\train_icm_rl.py", line 180, in train_one_rollout
+    dataset = CuriosityDataset(csv_path, image_folder)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\Public\Documents\testailatest\train_icm_rl.py", line 77, in __init__
+    (self.df['actionId'] != -1)
+     ~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\lzha565\AppData\Local\anaconda3\Lib\site-packages\pandas\core\frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lzha565\AppData\Local\anaconda3\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'actionId'
+🔓 Training lock removed.
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:14:54] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 350, 299.99999999999994，delta: -15, 0
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765887260231-220017-seed1, action 2
+127.0.0.1 - - [17/Dec/2025 01:14:54] "POST /record HTTP/1.1" 200 -
+Received request with method: OPTIONS
+127.0.0.1 - - [17/Dec/2025 01:15:29] "OPTIONS /record HTTP/1.1" 200 -
+Received request with method: POST
+Saving image: None, None -> 352.9271575349682, 314.84047400825614，delta: 2.9271575349682735, 14.840474008256251
+⚠️ Failed to run ActorCritic policy: [Errno 2] No such file or directory: 'saved_models/encoder_policy.pth'
+Appended row to record.csv for session 1765887260231-220017-seed1, action 1
+127.0.0.1 - - [17/Dec/2025 01:15:29] "POST /record HTTP/1.1" 200 -

@@ -65,26 +65,29 @@ function cropCenterImage(renderer, cropSize = 350) {
 const modules = import.meta.glob('/public/models/*.glb', {
   query: '?url',
   import: 'default',
-  eager: true
+  eager: false
 });
 
-const discoveredModels = Object.entries(modules).map(([path, url]) => {
-  const name = path.split('/').pop(); 
-  return { name, url };                    
-});
-const nameToUrl = new Map(discoveredModels.map(m => [m.name, m.url]));
+const modelPaths = Object.keys(modules);
+const modelList = modelPaths.map(p => p.split('/').pop());
 
-// ✅ Shuffle models randomly (Fisher-Yates algorithm)
-const allModels = discoveredModels.map(m => m.name);
-for (let i = allModels.length - 1; i > 0; i--) {
-  const j = Math.floor(rng() * (i + 1));
-  [allModels[i], allModels[j]] = [allModels[j], allModels[i]];
+async function getUrlByName(name) {
+  const path = modelPaths.find(p => p.endsWith('/' + name));
+  if (!path) return null;
+  return await modules[path](); // returns the url string
 }
-const modelList = allModels;
+
+// ✅ Shuffle modelList in-place (Fisher–Yates)
+for (let i = modelList.length - 1; i > 0; i--) {
+  const j = Math.floor(rng() * (i + 1));
+  [modelList[i], modelList[j]] = [modelList[j], modelList[i]];
+}
+
 console.log(`✅ Discovered ${modelList.length} models (shuffled):`, modelList);
 
+
 // ===== AUTO-COLLECTION STATE =====
-const STEPS_PER_MODEL = 50;
+const STEPS_PER_MODEL = 90;
 const loader = new GLTFLoader();
 
 let model = null;
@@ -242,7 +245,9 @@ function nextFrame() {
   return new Promise(requestAnimationFrame);
 }
 
-function loadModel(name) {
+async function loadModel(name) {
+  isLoadingModel = true;
+  console.log(`⏳ Loading model: ${name} ...`);
   // ✅ Remove + dispose old model(s) properly
   scene.children
     .filter(obj => obj.userData?.isModel)
@@ -255,9 +260,10 @@ function loadModel(name) {
   renderer.renderLists?.dispose?.(); // helps three.js clear internal caches
 
   currentModelName = name;
-  const url = nameToUrl.get(name);
+  const url = await getUrlByName(name);
   if (!url) {
     console.error('❌ URL not found for model:', name);
+    isLoadingModel = false;
     return;
   }
   
@@ -268,9 +274,15 @@ function loadModel(name) {
       model.userData.isModel = true;
       model.scale.set(0.5, 0.5, 0.5);
       model.position.set(0, 0, -2.5);
-      // Fully randomized initial position for training
-      const angleRadX = THREE.MathUtils.degToRad(Math.floor(rng() * 360));
-      const angleRadY = THREE.MathUtils.degToRad(Math.floor(rng() * 360));
+      const degree_rotate = 60;
+      // Deterministic initial rotation
+      const hashX = hashString('test' + name);
+      const rotationsX = Math.floor(hashX % (360 / degree_rotate) * degree_rotate);
+      const angleRadX = THREE.MathUtils.degToRad(rotationsX);
+
+      const hashY = hashString('test/' + name);
+      const rotationsY = Math.floor(hashY % (360 / degree_rotate) * degree_rotate);
+      const angleRadY = THREE.MathUtils.degToRad(rotationsY);
 
       model.rotation.set(angleRadX, angleRadY, 0);
 
@@ -294,6 +306,7 @@ function loadModel(name) {
     undefined,
     (err) => {
       console.error('❌ 模型加载失败:', err);
+      isLoadingModel = false; 
     }
   );
 }

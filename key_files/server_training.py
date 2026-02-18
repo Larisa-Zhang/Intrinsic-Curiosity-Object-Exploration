@@ -1,3 +1,4 @@
+import subprocess
 import threading
 import pandas as pd
 from flask import Flask, request, jsonify, make_response
@@ -20,8 +21,6 @@ from models import (
     EncoderPolicy, ActorCritic
 )
 from train_icm_rl import load_or_create, save_model, action_dim
-
-
 
 app = Flask(__name__) #Creates a Flask server
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')#Picks device: cuda if available, else CPU.
@@ -61,33 +60,33 @@ print(f"🌱 SEED = {SEED}")
 #   $env:SEED=123; python server.py
 # That makes the server’s randomness consistent across runs.
 
-# def save_abstract_image(img_bytes, save_path):
-#     """保存抽象过的图像（灰度 + 边缘检测 + 归一化）(not used currently)"""
+def save_abstract_image(img_bytes, save_path):
+    """保存抽象过的图像（灰度 + 边缘检测 + 归一化）(not used currently)"""
 
-#     # 从 bytes 加载图片
-#     img = Image.open(BytesIO(img_bytes)).convert('RGB')
-#     img = np.array(img)  # 转 numpy
+    # 从 bytes 加载图片
+    img = Image.open(BytesIO(img_bytes)).convert('RGB')
+    img = np.array(img)  # 转 numpy
 
-#     # ---------- 1) 裁剪中心 ----------
-#     CROP_SIZE =350
-#     h, w, _ = img.shape
-#     left = (w - CROP_SIZE) // 2
-#     top = (h - CROP_SIZE) // 2
-#     right = left + CROP_SIZE
-#     bottom = top + CROP_SIZE
-#     img = img[top:bottom, left:right]
+    # ---------- 1) 裁剪中心 ----------
+    CROP_SIZE =350
+    h, w, _ = img.shape
+    left = (w - CROP_SIZE) // 2
+    top = (h - CROP_SIZE) // 2
+    right = left + CROP_SIZE
+    bottom = top + CROP_SIZE
+    img = img[top:bottom, left:right]
 
-#     # ---------- 2) 转灰度 ----------
-#     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    # ---------- 2) 转灰度 ----------
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-#     # ---------- 3) 边缘检测 (Canny) ----------
-#     edges = cv2.Canny(gray, 50, 150)
+    # ---------- 3) 边缘检测 (Canny) ----------
+    edges = cv2.Canny(gray, 50, 150)
 
-#     # ---------- 4) 归一化到 0-255 ----------
-#     edges = edges.astype(np.uint8)
+    # ---------- 4) 归一化到 0-255 ----------
+    edges = edges.astype(np.uint8)
 
-#     # ---------- 5) 保存 ----------
-#     cv2.imwrite(save_path, edges)
+    # ---------- 5) 保存 ----------
+    cv2.imwrite(save_path, edges)
 
 
 # 图像预处理函数（和训练保持一致）
@@ -98,9 +97,8 @@ preprocess = transforms.Compose([
 
 # ✅ 启用 CORS 支持
 CORS(app)
-#saving screenshots data at an direactory outside of the project folder
-SCREENSHOT_DIR = r"D:\Users\Public\Documents\screenshots"
-os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+
+os.makedirs(r'screenshots', exist_ok=True)
 CSV_FILE = 'record.csv'
 ACTION_DIM = 4  # since ActorCritic(action dimension = 4)
 
@@ -143,19 +141,6 @@ def append_csv_row(sessionId, seed, frontend_seed, modelName, actionId, greedy_a
         writer = csv.writer(f)
         writer.writerow(row) 
         
-# When  receive imgData2, decode it to PIL and run policy on that PIL directly
-# Change from Frontend → sends base64 → backend saves image → backend re-opens image file → run policy 
-#To
-#Frontend → sends base64 image → Backend → decodes base64 → PIL Image (in RAM) → runs policy on that image → saves image to disk later
-        
-# def pil_from_data_url(data_url):
-#     if not data_url or "," not in data_url:
-#         return None
-#     b64 = data_url.split(",", 1)[1]
-#     if not b64:
-#         return None
-#     return Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
-
 # 可选：初始化 CSV
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, 'w', newline='') as f:
@@ -278,9 +263,7 @@ def record():
             bottom = top + CROP_SIZE
             image = image.crop((left, top, right, bottom))
 
-            #image.save(rf'screenshots\{s_t_img}', format='PNG')
-            image.save(os.path.join(SCREENSHOT_DIR, s_t_img), format='PNG')
-            
+            image.save(rf'screenshots\{s_t_img}', format='PNG')
 
         if data.get('imgData2', '').startswith('data:image'):
             imgData2 = data['imgData2'].split(',')[1]
@@ -296,12 +279,11 @@ def record():
             bottom = top + CROP_SIZE
             image = image.crop((left, top, right, bottom))
 
-            #image.save(rf'screenshots\{s_t1_img}', format='PNG')
-            image.save(os.path.join(SCREENSHOT_DIR, s_t1_img), format='PNG')
+            image.save(rf'screenshots\{s_t1_img}', format='PNG')
             
             for attempt in range(10):
-                if (os.path.exists(os.path.join(SCREENSHOT_DIR, s_t_img)) and
-                    os.path.exists(os.path.join(SCREENSHOT_DIR, s_t1_img))):
+                if (os.path.exists(rf'screenshots\{s_t_img}') and
+                    os.path.exists(rf'screenshots\{s_t1_img}')):
                     break
                 time.sleep(0.1)
             else:
@@ -326,16 +308,9 @@ def record():
 
         next_action = None
 
-        # # Load s_t1 image (It loads the AFTER image (s_t1_img) and uses it as the current state for choosing the next action, it stores probs_for_row = probs)
-        img2 = Image.open(os.path.join(SCREENSHOT_DIR, s_t1_img)).convert('RGB')
+        # Load s_t1 image (It loads the AFTER image (s_t1_img) and uses it as the current state for choosing the next action, it stores probs_for_row = probs)
+        img2 = Image.open(rf'screenshots\{s_t1_img}').convert('RGB')
         img2 = preprocess(img2).unsqueeze(0).to(device)
-        
-        # img2_pil = pil_from_data_url(data.get("imgData2"))
-        # if img2_pil is None:
-        #     return jsonify({"ok": True, "next_action": None, "reason": "missing imgData2"})
-        # img2 = preprocess(img2_pil).unsqueeze(0).to(device)
-
-
 
         # Encode state with policy encoder
         with torch.no_grad():
