@@ -16,7 +16,7 @@ CSV_PATH = "data/training6.0beta0.5/training_log.csv"
 
 # Put the EXACT column names from your CSV here:
 LOSS_COLS = [
-    "forward_loss_each",
+    #"forward_loss_each",
     #"inverse_acc_each",
     #"inverse_acc_rollout",
     #"inverse_loss_each",

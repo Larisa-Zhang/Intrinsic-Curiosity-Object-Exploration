@@ -1,3 +1,4 @@
+#SMALL-ALEXNET!!!!!!!!!!
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,60 +12,40 @@ class EncoderICM(nn.Module):
     def __init__(self, latent_dim=128):
         super().__init__()
 
+        # 128x128
+        # conv5 s2 p2 -> 64x64
+        # pool3 s2 p1 -> 32x32
+        # conv3 s1 p1 -> 32x32
+        # pool3 s2 p1 -> 16x16
+        # conv3 s1 p1 -> 16x16
         self.conv = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=8, stride=4),   # 32×31×31
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),  # 64×14×14
+            nn.Conv2d(3, 64, kernel_size=5, stride=2, padding=2),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 128, kernel_size=3, stride=1), # 128×12×12
-            nn.BatchNorm2d(128), 
-            # keep BN in convs, remove BN on latent
-            # Ideally This alone often makes forward loss keep decreasing longer and gives inverse loss room to move.
-            nn.ReLU()
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
         )
 
-        self.fc = nn.Linear(128 * 12 * 12, latent_dim)
-        self.bn_latent = nn.BatchNorm1d(latent_dim)   # 🔑 keep φ scale stable
-        #self.ln_latent = nn.LayerNorm(latent_dim)   # add this, try layer norm instead of batch norm in latent
+        self.fc = nn.Linear(256 * 16 * 16, latent_dim)
+        self.bn_latent = nn.BatchNorm1d(latent_dim)
 
     def forward(self, x):
-        z = self.conv(x)                      # [B, 128, 12, 12]
-        z = z.reshape(z.size(0), -1)          # [B, 128*12*12]
-        z = self.fc(z)                        # [B, latent_dim]
-        z = self.bn_latent(z)                # [B, latent_dim], normalised 
-        #z = self.ln_latent(z)                 # normalize φ(s)
+        z = self.conv(x)
+        z = z.reshape(z.size(0), -1)
+        z = self.fc(z)
+        z = self.bn_latent(z)
         return z
 
-# class EncoderICM(nn.Module):
-#     def __init__(self, latent_dim=128):
-#         super().__init__()
-
-#         self.conv = nn.Sequential(
-#             nn.Conv2d(3, 64, kernel_size=8, stride=4),     # was 32
-#             nn.BatchNorm2d(64),
-#             nn.ReLU(),
-
-#             nn.Conv2d(64, 128, kernel_size=4, stride=2),   # was 32->64
-#             nn.BatchNorm2d(128),
-#             nn.ReLU(),
-
-#             nn.Conv2d(128, 256, kernel_size=3, stride=1),  # was 64->128
-#             nn.BatchNorm2d(256),
-#             nn.ReLU()
-#         )
-
-#         # was 128 * 12 * 12
-#         self.fc = nn.Linear(256 * 12 * 12, latent_dim)
-#         self.bn_latent = nn.BatchNorm1d(latent_dim)
-
-#     def forward(self, x):
-#         z = self.conv(x)                 # [B, 256, 12, 12]
-#         z = z.reshape(z.size(0), -1)     # [B, 256*12*12]
-#         z = self.fc(z)                   # [B, latent_dim]
-#         z = self.bn_latent(z)
-#         return z
 
 
 # =========================================
@@ -112,23 +93,31 @@ class InverseModel(nn.Module):
 #    让策略网络看到“更抽象、更整洁”的 latent
 #    （通常 Policy 的 encoder 和 ICM 的 encoder 不共享）
 # =========================================
+
 class EncoderPolicy(nn.Module):
     def __init__(self, latent_dim=128):
         super().__init__()
 
+        # Same pattern but slightly lighter
         self.conv = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=8, stride=4),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(3, 48, kernel_size=5, stride=2, padding=2),
+            nn.BatchNorm2d(48),
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),
-            nn.BatchNorm2d(64),
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            nn.Conv2d(48, 96, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(96),
             nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU()
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            nn.Conv2d(96, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
         )
 
-        self.fc = nn.Linear(64 * 12 * 12, latent_dim)
+        self.fc = nn.Linear(128 * 16 * 16, latent_dim)
         self.bn_latent = nn.BatchNorm1d(latent_dim)
 
     def forward(self, x):
@@ -138,34 +127,7 @@ class EncoderPolicy(nn.Module):
         z = self.bn_latent(z)
         return z
 
-# class EncoderPolicy(nn.Module):
-#     def __init__(self, latent_dim=128):
-#         super().__init__()
 
-#         self.conv = nn.Sequential(
-#             nn.Conv2d(3, 64, kernel_size=8, stride=4),      # was 32
-#             nn.BatchNorm2d(64),
-#             nn.ReLU(),
-
-#             nn.Conv2d(64, 128, kernel_size=4, stride=2),    # was 32->64
-#             nn.BatchNorm2d(128),
-#             nn.ReLU(),
-
-#             nn.Conv2d(128, 128, kernel_size=3, stride=1),   # was 64->64
-#             nn.BatchNorm2d(128),
-#             nn.ReLU()
-#         )
-
-#         # was 64 * 12 * 12
-#         self.fc = nn.Linear(128 * 12 * 12, latent_dim)
-#         self.bn_latent = nn.BatchNorm1d(latent_dim)
-
-#     def forward(self, x):
-#         z = self.conv(x)                 # [B, 128, 12, 12]
-#         z = z.reshape(z.size(0), -1)
-#         z = self.fc(z)
-#         z = self.bn_latent(z)
-#         return z
 
 
 # =========================================

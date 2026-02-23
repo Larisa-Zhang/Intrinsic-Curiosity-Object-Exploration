@@ -185,7 +185,7 @@ function hashString(str) {
 
 async function sendInitRow(name, init) {
   try {
-    const res = await fetch('http://127.0.0.1:5000/record', {
+    const res = await fetch('/api/record', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -362,7 +362,7 @@ function logUI(message) {
 }
 
 function saveProgressLog() {
-  fetch('http://127.0.0.1:5000/save-progress', {
+  fetch('/api/save-progress', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ processedModels }),
@@ -423,7 +423,7 @@ async function recordStepAndAct(actionId) {
   const imgData2 = cropCenterImage(renderer, 350);
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/record', {
+    const res = await fetch('/api/record', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -507,7 +507,7 @@ async function simulateAction(actionId) {
   const imgData2 = cropCenterImage(renderer, 350);
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/record', {
+    const res = await fetch('/api/record', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -60,33 +60,33 @@ print(f"🌱 SEED = {SEED}")
 #   $env:SEED=123; python server.py
 # That makes the server’s randomness consistent across runs.
 
-def save_abstract_image(img_bytes, save_path):
-    """保存抽象过的图像（灰度 + 边缘检测 + 归一化）(not used currently)"""
+# def save_abstract_image(img_bytes, save_path):
+#     """保存抽象过的图像（灰度 + 边缘检测 + 归一化）(not used currently)"""
 
-    # 从 bytes 加载图片
-    img = Image.open(BytesIO(img_bytes)).convert('RGB')
-    img = np.array(img)  # 转 numpy
+#     # 从 bytes 加载图片
+#     img = Image.open(BytesIO(img_bytes)).convert('RGB')
+#     img = np.array(img)  # 转 numpy
 
-    # ---------- 1) 裁剪中心 ----------
-    CROP_SIZE =350
-    h, w, _ = img.shape
-    left = (w - CROP_SIZE) // 2
-    top = (h - CROP_SIZE) // 2
-    right = left + CROP_SIZE
-    bottom = top + CROP_SIZE
-    img = img[top:bottom, left:right]
+#     # ---------- 1) 裁剪中心 ----------
+#     CROP_SIZE =350
+#     h, w, _ = img.shape
+#     left = (w - CROP_SIZE) // 2
+#     top = (h - CROP_SIZE) // 2
+#     right = left + CROP_SIZE
+#     bottom = top + CROP_SIZE
+#     img = img[top:bottom, left:right]
 
-    # ---------- 2) 转灰度 ----------
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+#     # ---------- 2) 转灰度 ----------
+#     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-    # ---------- 3) 边缘检测 (Canny) ----------
-    edges = cv2.Canny(gray, 50, 150)
+#     # ---------- 3) 边缘检测 (Canny) ----------
+#     edges = cv2.Canny(gray, 50, 150)
 
-    # ---------- 4) 归一化到 0-255 ----------
-    edges = edges.astype(np.uint8)
+#     # ---------- 4) 归一化到 0-255 ----------
+#     edges = edges.astype(np.uint8)
 
-    # ---------- 5) 保存 ----------
-    cv2.imwrite(save_path, edges)
+#     # ---------- 5) 保存 ----------
+#     cv2.imwrite(save_path, edges)
 
 
 # 图像预处理函数（和训练保持一致）
