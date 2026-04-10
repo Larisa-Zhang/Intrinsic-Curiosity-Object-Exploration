@@ -1,7 +1,8 @@
+#launch_backends.py
 import subprocess, sys, os, time
 
 experiments = [
-    ("exp_1", 5001, 1),
+    ("exp_1", 5001, 1),  # ← last number is backend seed
     ("exp_2", 5002, 1),
     ("exp_3", 5003, 1),
     ("exp_4", 5004, 1),

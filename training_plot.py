@@ -13,28 +13,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-CSV_PATH = "training_log.csv"
+CSV_PATH = "training_logs/exp_2/training_log.csv"
 # D:\Users\Public\Documents\testailatest\data\Forth offical run
 
 LOSS_COLS = [
-    "forward_loss_each",
-    #"inverse_acc_each",
+    "forward_loss",
+    "inverse_loss",
     "inverse_acc_rollout",
-    "inverse_loss_each",
-    "policy_loss_each",
-    "total_loss_each",
+    "policy_loss",
+    "total_loss",
     "intrinsic_reward",
-    "entropy_each"
+    "entropy",
 ]
 
 COLOR_MAP = {
-    "forward_loss_each": "tab:blue",
+    "forward_loss": "tab:blue",
+    "inverse_loss": "tab:orange",
     "inverse_acc_rollout": "tab:purple",
-    "inverse_loss_each": "tab:orange",
-    "policy_loss_each": "tab:red",
-    "total_loss_each": "tab:gray",
+    "policy_loss": "tab:red",
+    "total_loss": "tab:gray",
     "intrinsic_reward": "tab:cyan",
-    "entropy_each": "tab:brown",
+    "entropy": "tab:brown",
 }
 
 TITLE_NAME_MAP = {
@@ -47,7 +46,7 @@ TITLE_NAME_MAP = {
     "entropy_each": "Entropy",
 }
 
-AVG_WINDOW = 1000                 # black trend line resolution
+AVG_WINDOW = 2000                 # black trend line resolution
 LABEL_EVERY_N_BLOCKS = 10         # every 10 blocks => every 10,000 rows
 DRAW_10K_LINES = True
 ANNOTATE_BLOCK_MEANS = True

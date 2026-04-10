@@ -1,9 +1,10 @@
+# launch_frontends.py
 import subprocess, os, time, webbrowser
 
 NPX = r"C:\Program Files\nodejs\npx.cmd"
 
 experiments = [
-    ("exp_1", 5001, 5173, 1),
+    ("exp_1", 5001, 5173, 1),  # ← last number is frontend seed
     ("exp_2", 5002, 5174, 1),
     ("exp_3", 5003, 5175, 1),
     ("exp_4", 5004, 5176, 1),
@@ -35,3 +36,4 @@ try:
 except KeyboardInterrupt:
     print("\n🛑 Shutting down frontends...")
     for p in procs: p.terminate()
+

@@ -9,7 +9,7 @@ action_plot.py
 import pandas as pd
 import matplotlib.pyplot as plt
 
-CSV_PATH = "training_logs/exp_2/record2.csv"
+CSV_PATH = "record1.csv"
 ACTION_COL = "greedy_action"
 
 # If your prob column names differ, change here:

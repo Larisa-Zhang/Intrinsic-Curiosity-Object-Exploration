@@ -1,4 +1,4 @@
-
+#server.py: parallel training 
 # Launch 4 separate servers:
 #     ACTIVE_EXP=exp_1 PORT=5001 python server.py
 #     ACTIVE_EXP=exp_2 PORT=5002 python server.py
@@ -101,7 +101,7 @@ CSV_FILE          = exp_cfg["csv_path"]
 ACTION_DIM        = exp_cfg["action_dim"]
 ROLLOUT_SIZE      = exp_cfg["rollout_size"]
 TRAIN_ROWS_EVERY  = ROLLOUT_SIZE
-ENABLE_TRAINING   = True
+ENABLE_TRAINING   = False
 LOCK_FILE         = f"training_{ACTIVE_EXP}.lock"  # separate lock per experiment
 
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
