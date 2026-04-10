@@ -8,17 +8,16 @@ __pycache__/
 node_modules/
 dist/
 
-# Generated data
-hdrs/
-screenshots/
-preview_edges
+#Training data
 public/
-data/
-memory_test_results.csv
-record.csv
-reinforcement_train_curiosity.csv
-train_policy_reinforcement.csv
+
+# Generated data
+saved_models/
+training_logs/
 
 # Environment
 .venv/
 .env
+
+# Others
+temp_files/

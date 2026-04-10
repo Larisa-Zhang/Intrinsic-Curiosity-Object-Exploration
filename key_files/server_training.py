@@ -101,7 +101,7 @@ CSV_FILE          = exp_cfg["csv_path"]
 ACTION_DIM        = exp_cfg["action_dim"]
 ROLLOUT_SIZE      = exp_cfg["rollout_size"]
 TRAIN_ROWS_EVERY  = ROLLOUT_SIZE
-ENABLE_TRAINING   = False
+ENABLE_TRAINING   = True
 LOCK_FILE         = f"training_{ACTIVE_EXP}.lock"  # separate lock per experiment
 
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)

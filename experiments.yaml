@@ -1,0 +1,94 @@
+# experiments.yaml
+
+experiments:
+
+
+  - name: "exp_1"
+    # Data
+    csv_path: "training_logs\\exp_1\\record1.csv"    
+    log_dir: "training_logs\\exp_1"
+    image_dir: "D:\\Users\\Public\\Documents\\Experiment\\parallel_screenshots1"
+    save_dir: "saved_models\\exp_1"
+
+    # Architecture
+    action_dim: 4
+    latent_dim: 128
+    share_encoder: false
+
+    # Training
+    rollout_size: 50
+    gamma: 0.99
+    lr: 1.0e-4
+    beta: 0.2
+    entropy_coef: 0.01
+    value_loss_coef: 0.5
+    prediction_lr_scale: 1.0
+    unsup_type: "action"
+
+
+
+  - name: "exp_2"
+    # Data
+    csv_path: "training_logs\\exp_2\\record2.csv"    
+    log_dir: "training_logs\\exp_2"
+    image_dir: "D:\\Users\\Public\\Documents\\Experiment\\parallel_screenshots2"
+    save_dir: "saved_models\\exp_2"
+
+    # Architecture
+    action_dim: 4
+    latent_dim: 128
+    share_encoder: false
+
+    # Training
+    rollout_size: 50
+    gamma: 0.99
+    lr: 1.0e-4
+    beta: 0.2
+    entropy_coef: 0.01
+    value_loss_coef: 0.5
+    prediction_lr_scale: 1.0
+    unsup_type: "action"
+
+  - name: "exp_3"
+    # Data
+    csv_path: "training_logs\\exp_3\\record3.csv"
+    log_dir: "training_logs\\exp_3"
+    image_dir: "D:\\Users\\Public\\Documents\\Experiment\\parallel_screenshots3"
+    save_dir: "saved_models\\exp_3"
+    
+    # Architecture
+    action_dim: 4
+    latent_dim: 128
+    share_encoder: false
+
+    # Training
+    rollout_size: 50
+    gamma: 0.99
+    lr: 1.0e-4
+    beta: 0.2
+    entropy_coef: 0.01
+    value_loss_coef: 0.5
+    prediction_lr_scale: 1.0
+    unsup_type: "action"
+
+  - name: "exp_4"
+    # Data
+    csv_path: "training_logs\\exp_4\\record4.csv"
+    log_dir: "training_logs\\exp_4"
+    image_dir: "D:\\Users\\Public\\Documents\\Experiment\\parallel_screenshots4"
+    save_dir: "saved_models\\exp_4"
+
+    # Architecture
+    action_dim: 4
+    latent_dim: 128
+    share_encoder: false
+
+    # Training
+    rollout_size: 50
+    gamma: 0.99
+    lr: 1.0e-4
+    beta: 0.2
+    entropy_coef: 0.01
+    value_loss_coef: 0.5
+    prediction_lr_scale: 1.0
+    unsup_type: "action"
